@@ -3,7 +3,7 @@ name: Run Python script daily
 
 on:
   schedule:
-    - cron: "0 0 * * *"
+    - cron: "30 12 * * *"
   workflow_dispatch:
 
 jobs:
