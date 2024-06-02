@@ -23,7 +23,26 @@ month_translation = {
     'грудня': 'December'
 }
 
-companies = ["epam-systems", "softserve", "luxoft", "n-ix", "globallogic", "zone3000", "ukrenergo-digital-solutions"]
+companies = [
+    "epam-systems",
+    "softserve",
+    "luxoft",
+    "n-ix",
+    "globallogic",
+    "zone3000",
+    "ukrenergo-digital-solutions",
+    "evoplay",
+    "ajax-systems",
+    "genesis-technology-partners",
+    "dataart",
+    "sigma-software",
+    "eleks",
+    "avenga",
+    "autodoc",
+    "netpeak-group",
+    "grid-dynamics",
+    "lohika-systems"
+]
 last_pub_days = 3
 
 email_subject = "Test HTML Email"
