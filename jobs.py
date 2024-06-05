@@ -42,8 +42,7 @@ companies = [
     "netpeak-group",
     "grid-dynamics",
     "lohika-systems",
-    # "levi9",
-    "autodoc",
+    "levi9",
 ]
 last_pub_days = 3
 
