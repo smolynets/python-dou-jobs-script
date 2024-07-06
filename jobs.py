@@ -1,3 +1,4 @@
+import os
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
@@ -52,26 +53,32 @@ smtp_port = 587
 
 to_email = "smolynets@gmail.com"
 from_email = "smolynets2@gmail.com"
-email_app_password = "prem vwaq xlcp knak "  # Replace with your email app password
+email_app_password = os.getenv("EMAIL_APP_PASSWORD")
 
-def send_html_email(email_subject, to_email, from_email, email_app_password, records):
+def send_html_email(email_subject, to_email, from_email, email_app_password, records_groups):
     email_html_body = f"""
     <html>
     <body>
     <h1>{current_date.strftime("%d %B")} - Python Job Vacancies for last {last_pub_days} days</h1>
     <ul>
     """
-    for record in records:
-        email_html_body += f"<li><strong>{record[0]}</strong></li>\n"
-        email_html_body += f"<li><strong>Position:</strong> {record[1]}</li>\n"
-        email_html_body += f"<li><strong>Link:</strong> <a href='{record[2]}'>{record[2]}</a></li>\n"
-        email_html_body += f"<li><strong>Description:</strong> {record[3]}</li>\n"
-        email_html_body += f"<li><strong>Date Posted:</strong> {record[4]}</li>\n"
-        email_html_body += "<br>"  # Add a line break between records for better readability
+    for vac_type, records in records_groups.items():
+        email_html_body += f"""
+            <strong style=\"display: inline-block; margin-bottom: 10px; margin-top: 20px; font-size: 30px\">
+            {vac_type}
+            </strong>\n
+        """
+        for record in records:
+            email_html_body += f"<li><strong>{record[0]}</strong></li>\n"
+            email_html_body += f"<li><strong>Position:</strong> {record[1]}</li>\n"
+            email_html_body += f"<li><strong>Link:</strong> <a href='{record[2]}'>{record[2]}</a></li>\n"
+            email_html_body += f"<li><strong>Description:</strong> {record[3]}</li>\n"
+            email_html_body += f"<li><strong>Date Posted:</strong> {record[4]}</li>\n"
+            email_html_body += "<br>"
     email_html_body += """
-    </ul>
-    </body>
-    </html>
+        </ul>
+        </body>
+        </html>
     """
 
     # Create the MIME message
@@ -100,8 +107,8 @@ def check_pub_date(vacancy):
     days_difference = datetime.now() - date_object
     return days_difference > timedelta(days=last_pub_days), date_str
 
-def main(companies):
-    records = []
+
+def main_companies(companies, records):
     for company in companies:
         url = f"https://jobs.dou.ua/companies/{company}/vacancies/"
         headers = {
@@ -138,9 +145,53 @@ def main(companies):
                             vacancy_record.append(date_str)
                         records.append(vacancy_record)
         else:
-            print("Could not find the vacancies section on the page.")
-    send_html_email(email_subject, to_email, from_email, email_app_password, records)
-    # for record in records:
+            print("Could not find the vacancies section on the main companies pages.")
+
+
+def all_companies(companies, records):
+    url = f"https://jobs.dou.ua/vacancies/?category=Python"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Connection": "keep-alive"
+    }
+    try:
+        response = requests.get(url, headers=headers)
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching the page: {e}")
+        exit(1)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    vacancies = soup.find("div", class_="l-items").find_all('li', class_='l-vacancy')
+    # vacancies = vacancies_section.find_all('li', class_='l-vacancy')
+    for vacancy in vacancies:
+        is_older_than_last_pub_days, date_str = check_pub_date(vacancy)
+        if not is_older_than_last_pub_days:
+            vacancy_record = []
+            company = vacancy.find("a", class_="company").text.strip()
+            vacancy_record.append(f"Company - {company}")
+            title = vacancy.find('a').text.strip()
+            href = vacancy.find('a')["href"]
+            short_desc = vacancy.find('div', class_='sh-info').text.strip()
+            short_desc = short_desc.replace('\xa0', ' ')
+            short_desc = short_desc.replace('\n\n\n', ' ')
+            vacancy_record.append(title)
+            vacancy_record.append(href)
+            vacancy_record.append(short_desc)
+            if date_str:
+                vacancy_record.append(date_str)
+            records.append(vacancy_record)
+
+
+def main(companies):
+    main_companies_records = []
+    all_companies_records = []
+    main_companies(companies, main_companies_records)
+    all_companies(companies, all_companies_records)
+    send_html_email(email_subject, to_email, from_email, email_app_password, {
+        "Main companies": main_companies_records, "All companies": all_companies_records
+    })
+    # for record in all_companies_records:
     #     for line in record:
     #         print(line)
     #     print("\n")
