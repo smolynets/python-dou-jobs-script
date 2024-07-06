@@ -64,18 +64,19 @@ def send_html_email(email_subject, to_email, from_email, email_app_password, rec
     <ul>
     """
     for vac_type, records in records_groups.items():
-        email_html_body += f"""
-            <strong style=\"display: inline-block; margin-bottom: 10px; margin-top: 20px; font-size: 30px\">
-            {vac_type}
-            </strong>\n
-        """
-        for record in records:
-            email_html_body += f"<li><strong>{record[0]}</strong></li>\n"
-            email_html_body += f"<li><strong>Position:</strong> {record[1]}</li>\n"
-            email_html_body += f"<li><strong>Link:</strong> <a href='{record[2]}'>{record[2]}</a></li>\n"
-            email_html_body += f"<li><strong>Description:</strong> {record[3]}</li>\n"
-            email_html_body += f"<li><strong>Date Posted:</strong> {record[4]}</li>\n"
-            email_html_body += "<br>"
+        if records:
+            email_html_body += f"""
+                <strong style=\"display: inline-block; margin-bottom: 10px; margin-top: 20px; font-size: 30px\">
+                {vac_type}
+                </strong>\n
+            """
+            for record in records:
+                email_html_body += f"<li><strong>{record[0]}</strong></li>\n"
+                email_html_body += f"<li><strong>Position:</strong> {record[1]}</li>\n"
+                email_html_body += f"<li><strong>Link:</strong> <a href='{record[2]}'>{record[2]}</a></li>\n"
+                email_html_body += f"<li><strong>Description:</strong> {record[3]}</li>\n"
+                email_html_body += f"<li><strong>Date Posted:</strong> {record[4]}</li>\n"
+                email_html_body += "<br>"
     email_html_body += """
         </ul>
         </body>
