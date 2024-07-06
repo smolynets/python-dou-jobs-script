@@ -53,8 +53,7 @@ smtp_port = 587
 
 to_email = "smolynets@gmail.com"
 from_email = "smolynets2@gmail.com"
-# email_app_password = os.getenv("EMAIL_APP_PASSWORD")
-email_app_password = "prem vwaq xlcp knak "
+email_app_password = os.getenv("EMAIL_APP_PASSWORD")
 
 def send_html_email(email_subject, to_email, from_email, email_app_password, records_groups):
     email_html_body = f"""
