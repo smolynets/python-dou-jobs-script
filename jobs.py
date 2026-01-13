@@ -51,8 +51,8 @@ email_subject = "Test HTML Email"
 smtp_server = 'smtp.gmail.com'
 smtp_port = 587
 
-to_email = "smolynets@gmail.com"
-from_email = "smolynets2@gmail.com"
+to_email = ""
+from_email = ""
 email_app_password = os.getenv("EMAIL_APP_PASSWORD")
 
 def send_html_email(email_subject, to_email, from_email, email_app_password, records_groups):
